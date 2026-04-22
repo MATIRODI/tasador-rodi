@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tasador Rodi — Grupo Rodi Inmobiliaria</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul:    #0D1B2A;
+    --azul2:   #162436;
+    --oro:     #C9A84C;
+    --oro2:    #B8962E;
+    --crema:   #F9F6F0;
+    --gris:    #E8E4DC;
+    --texto:   #1A1A1A;
+    --muted:   #6B6B6B;
+    --error:   #C0392B;
+    --success: #1E7E5A;
+    --r:       12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--azul);
+    color: var(--texto);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--azul);
+    border-bottom: 1px solid rgba(201,168,76,0.25);
+    padding: 0 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--oro);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--azul);
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+  }
+
+  .logo-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 0.02em;
+  }
+
+  .logo-sub {
+    font-size: 10px;
+    color: var(--oro);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .header-badge {
+    font-size: 11px;
+    color: var(--oro);
+    border: 1px solid rgba(201,168,76,0.4);
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── MAIN ── */
+  main {
+    flex: 1;
+    background: var(--crema);
+    border-radius: 20px 20px 0 0;
+    padding: 3rem 2.5rem;
+    max-width: 860px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  /* ── PAGE TITLE ── */
+  .page-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .page-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 500;
+    color: var(--azul);
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .page-desc {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  /* ── STEPS ── */
+  .steps {
+    display: flex;
+    gap: 0;
+    margin-bottom: 2.5rem;
+    border-radius: var(--r);
+    overflow: hidden;
+    border: 1px solid var(--gris);
+  }
+
+  .step {
+    flex: 1;
+    padding: 14px 16px;
+    background: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-right: 1px solid var(--gris);
+    transition: background 0.2s;
+  }
+
+  .step:last-child { border-right: none; }
+
+  .step.active { background: var(--azul); }
+  .step.done   { background: var(--azul2); }
+
+  .step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+    background: var(--gris);
+    color: var(--muted);
+  }
+
+  .step.active .step-num { background: var(--oro); color: var(--azul); }
+  .step.done   .step-num { background: var(--success); color: white; }
+
+  .step-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  .step.active .step-label { color: white; }
+  .step.done   .step-label { color: rgba(255,255,255,0.7); }
+
+  /* ── CARD ── */
+  .card {
+    background: white;
+    border-radius: var(--r);
+    border: 1px solid var(--gris);
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+
+  .card-header {
+    padding: 1.1rem 1.5rem;
+    border-bottom: 1px solid var(--gris);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--crema);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--azul);
+  }
+
+  .card-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .card-body { padding: 1.5rem; }
+
+  /* ── FORM ── */
+  .field { margin-bottom: 1.25rem; }
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--azul);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--gris);
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    color: var(--texto);
+    background: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--oro);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+  }
+
+  .input-hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 5px;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  /* ── UPLOAD ── */
+  .upload-zone {
+    border: 2px dashed var(--gris);
+    border-radius: 10px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--crema);
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--oro);
+    background: rgba(201,168,76,0.05);
+  }
+
+  .upload-zone.filled {
+    border-color: var(--success);
+    background: rgba(30,126,90,0.04);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-icon { font-size: 28px; margin-bottom: 8px; }
+
+  .upload-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--azul);
+    margin-bottom: 4px;
+  }
+
+  .upload-sub {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .upload-filename {
+    font-size: 12px;
+    color: var(--success);
+    font-weight: 600;
+    margin-top: 6px;
+    display: none;
+  }
+
+  .upload-zone.filled .upload-filename { display: block; }
+  .upload-zone.filled .upload-label { color: var(--success); }
+
+  /* ── ZONA SELECTOR ── */
+  .zona-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .zona-option {
+    border: 1.5px solid var(--gris);
+    border-radius: 8px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .zona-option:hover { border-color: var(--oro); background: rgba(201,168,76,0.04); }
+  .zona-option.selected { border-color: var(--azul); background: var(--azul); }
+
+  .zona-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--gris);
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .zona-option.selected .zona-dot {
+    background: var(--oro);
+    border-color: var(--oro);
+  }
+
+  .zona-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--texto);
+    line-height: 1.2;
+  }
+
+  .zona-option.selected .zona-name { color: white; }
+
+  .zona-desc {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .zona-option.selected .zona-desc { color: rgba(255,255,255,0.6); }
+
+  /* ── COMPARABLES MANUAL ── */
+  .comparable-item {
+    border: 1px solid var(--gris);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 8px;
+    position: relative;
+    background: var(--crema);
+  }
+
+  .comparable-remove {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: #fee;
+    color: var(--error);
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .btn-add {
+    width: 100%;
+    padding: 10px;
+    border: 1.5px dashed var(--gris);
+    border-radius: 8px;
+    background: white;
+    color: var(--muted);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+    margin-top: 8px;
+  }
+
+  .btn-add:hover { border-color: var(--oro); color: var(--azul); }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--azul);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .info-box-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── GENERATE BUTTON ── */
+  .btn-generate {
+    width: 100%;
+    padding: 16px;
+    background: var(--azul);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    letter-spacing: 0.02em;
+    margin-top: 1.5rem;
+  }
+
+  .btn-generate:hover {
+    background: var(--azul2);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(13,27,42,0.25);
+  }
+
+  .btn-generate:active { transform: translateY(0); }
+
+  .btn-generate .arrow {
+    font-size: 18px;
+    transition: transform 0.2s;
+  }
+
+  .btn-generate:hover .arrow { transform: translateX(4px); }
+
+  /* ── LOADING STATE ── */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,27,42,0.85);
+    z-index: 200;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .loading-overlay.active { display: flex; }
+
+  .loading-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem 3rem;
+    text-align: center;
+    max-width: 380px;
+    width: 90%;
+  }
+
+  .loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--gris);
+    border-top-color: var(--oro);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1.25rem;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--azul);
+    margin-bottom: 6px;
+  }
+
+  .loading-step {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    min-height: 20px;
+    transition: all 0.3s;
+  }
+
+  .loading-progress {
+    width: 100%;
+    height: 4px;
+    background: var(--gris);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .loading-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--azul), var(--oro));
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  /* ── SUCCESS STATE ── */
+  .success-card {
+    display: none;
+    background: white;
+    border-radius: var(--r);
+    border: 1px solid var(--gris);
+    padding: 2rem;
+    text-align: center;
+    margin-top: 1.5rem;
+  }
+
+  .success-card.show { display: block; }
+
+  .success-icon {
+    width: 56px;
+    height: 56px;
+    background: rgba(30,126,90,0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin: 0 auto 1rem;
+  }
+
+  .success-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--azul);
+    margin-bottom: 6px;
+  }
+
+  .success-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: var(--oro);
+    color: var(--azul);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .btn-download:hover {
+    background: var(--oro2);
+    transform: translateY(-1px);
+  }
+
+  .btn-nueva {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: white;
+    color: var(--azul);
+    border: 1.5px solid var(--gris);
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: all 0.2s;
+  }
+
+  .btn-nueva:hover { border-color: var(--azul); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--gris);
+    margin: 1.5rem 0;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    main { padding: 1.5rem 1rem; border-radius: 12px 12px 0 0; }
+    header { padding: 0 1rem; }
+    .field-row { grid-template-columns: 1fr; }
+    .zona-grid { grid-template-columns: 1fr; }
+    .steps { flex-direction: column; }
+    .step { border-right: none; border-bottom: 1px solid var(--gris); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">GR</div>
+    <div class="logo-text">
+      <span class="logo-name">Grupo Rodi Inmobiliaria</span>
+      <span class="logo-sub">Soluciones Inteligentes para el Mercado</span>
+    </div>
+  </div>
+  <div class="header-badge">Tasador Profesional · Mat. 7524</div>
+</header>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-card">
+    <div class="loading-spinner"></div>
+    <div class="loading-title">Generando tasación</div>
+    <div class="loading-step" id="loadingStep">Leyendo datos del inmueble...</div>
+    <div class="loading-progress">
+      <div class="loading-bar" id="loadingBar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <div class="page-header">
+    <h1 class="page-title">Nueva tasación</h1>
+    <p class="page-desc">Completá los datos del inmueble. El sistema genera el informe completo con tres métodos de valuación, comparables de mercado y precio de comercialización sugerido.</p>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps">
+    <div class="step active" id="step1-indicator">
+      <div class="step-num">1</div>
+      <div class="step-label">Datos del inmueble</div>
+    </div>
+    <div class="step" id="step2-indicator">
+      <div class="step-num">2</div>
+      <div class="step-label">Documentos</div>
+    </div>
+    <div class="step" id="step3-indicator">
+      <div class="step-num">3</div>
+      <div class="step-label">Comparables</div>
+    </div>
+    <div class="step" id="step4-indicator">
+      <div class="step-num">4</div>
+      <div class="step-label">Generar informe</div>
+    </div>
+  </div>
+
+  <form id="tasadorForm" onsubmit="generarTasacion(event)">
+
+    <!-- PASO 1: DATOS DEL INMUEBLE -->
+    <div class="card" id="section1">
+      <div class="card-header">
+        <div class="card-icon">🏛️</div>
+        <div>
+          <div class="card-title">Datos del inmueble</div>
+          <div class="card-subtitle">Información registral y catastral</div>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div class="field-row">
+          <div class="field">
+            <label>N.° de cuenta Rentas</label>
+            <input type="text" id="nroCuenta" placeholder="Ej: 110100321858" required>
+            <div class="input-hint">Se encuentra en el cedulón de Rentas Córdoba</div>
+          </div>
+          <div class="field">
+            <label>Nomenclatura catastral</label>
+            <input type="text" id="nomenclatura" placeholder="Ej: 11-01-01-04-15-014-053">
+            <div class="input-hint">Del reporte de Catastro Córdoba</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Titular registral</label>
+          <input type="text" id="titular" placeholder="Apellido y nombre completo" required>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>CUIT / CUIL</label>
+            <input type="text" id="cuit" placeholder="Ej: 27-29793996-9">
+          </div>
+          <div class="field">
+            <label>Domicilio del inmueble</label>
+            <input type="text" id="domicilio" placeholder="Calle, número, barrio" required>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Superficie terreno (m²)</label>
+            <input type="number" id="superficie" placeholder="Ej: 936" required min="1">
+            <div class="input-hint">Dato oficial de Catastro Córdoba</div>
+          </div>
+          <div class="field">
+            <label>Tipo de bien</label>
+            <select id="tipoBien">
+              <option value="baldio">Terreno baldío</option>
+              <option value="edificado">Terreno con construcciones</option>
+              <option value="ph">Departamento / PH</option>
+              <option value="casa">Casa</option>
+              <option value="local">Local comercial</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="field-row">
+          <div class="field">
+            <label>Valuación fiscal tierra ($)</label>
+            <input type="number" id="valTierra" placeholder="Ej: 278434381">
+            <div class="input-hint">Del reporte de Catastro</div>
+          </div>
+          <div class="field">
+            <label>Valuación fiscal mejoras ($)</label>
+            <input type="number" id="valMejoras" placeholder="Ej: 30261918" value="0">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PASO 2: NORMATIVA -->
+    <div class="card" id="section2">
+      <div class="card-header">
+        <div class="card-icon">📐</div>
+        <div>
+          <div class="card-title">Normativa urbanística</div>
+          <div class="card-subtitle">Datos del mapa normativo de Córdoba</div>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div class="info-box">
+          <span class="info-box-icon">💡</span>
+          <span>Consultá la normativa en <strong>mapas.cordoba.gob.ar</strong> buscando la dirección del inmueble. El perfil y el FOT/FOS aparecen en el panel lateral.</span>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Perfil / Zona</label>
+            <select id="perfil">
+              <option value="">Seleccionar...</option>
+              <option value="A">A – Residencial baja densidad</option>
+              <option value="B">B – Residencial media densidad</option>
+              <option value="C">C – Residencial alta densidad</option>
+              <option value="D">D – Renovación densificación</option>
+              <option value="E">E – Uso mixto</option>
+              <option value="C2">C2 – Corredor comercial</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>APU / Área especial</label>
+            <input type="text" id="apu" placeholder="Ej: APU 17 – Julio A. Roca">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>FOS (%)</label>
+            <input type="number" id="fos" placeholder="Ej: 70" min="0" max="100">
+          </div>
+          <div class="field">
+            <label>FOT</label>
+            <input type="number" id="fot" placeholder="Ej: 2.50" step="0.1" min="0">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Altura máxima (m)</label>
+            <input type="number" id="altMax" placeholder="Ej: 15">
+          </div>
+          <div class="field">
+            <label>Carácter urbanístico</label>
+            <select id="caracter">
+              <option value="">Seleccionar...</option>
+              <option value="residencial">Residencial</option>
+              <option value="mixto">Mixto / comercial</option>
+              <option value="comercial">Comercial</option>
+              <option value="industrial">Industrial</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <label style="margin-bottom: 10px; display:block">Zona de mercado</label>
+        <div class="zona-grid">
+          <div class="zona-option selected" onclick="selectZona(this, 'deprimida')">
+            <div class="zona-dot"></div>
+            <div>
+              <div class="zona-name">Zona deprimida</div>
+              <div class="zona-desc">Factor catastral 1,09</div>
+            </div>
+          </div>
+          <div class="zona-option" onclick="selectZona(this, 'normal')">
+            <div class="zona-dot"></div>
+            <div>
+              <div class="zona-name">Zona normal</div>
+              <div class="zona-desc">Factor catastral 1,20</div>
+            </div>
+          </div>
+          <div class="zona-option" onclick="selectZona(this, 'consolidada')">
+            <div class="zona-dot"></div>
+            <div>
+              <div class="zona-name">Zona consolidada</div>
+              <div class="zona-desc">Factor catastral 1,30</div>
+            </div>
+          </div>
+          <div class="zona-option" onclick="selectZona(this, 'premium')">
+            <div class="zona-dot"></div>
+            <div>
+              <div class="zona-name">Zona premium</div>
+              <div class="zona-desc">Factor catastral 1,45</div>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="zonaSeleccionada" value="deprimida">
+
+      </div>
+    </div>
+
+    <!-- PASO 3: VALUACIÓN -->
+    <div class="card" id="section3">
+      <div class="card-header">
+        <div class="card-icon">💰</div>
+        <div>
+          <div class="card-title">Parámetros de valuación</div>
+          <div class="card-subtitle">Valores para los tres métodos</div>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div class="field-row">
+          <div class="field">
+            <label>Valor unitario adoptado (USD/m²)</label>
+            <input type="number" id="valorM2" placeholder="Ej: 230" required min="1">
+            <div class="input-hint">Método comparativo</div>
+          </div>
+          <div class="field">
+            <label>Costo demolición (USD/m²)</label>
+            <input type="number" id="costoDemo" placeholder="Ej: 80" value="80">
+            <div class="input-hint">Solo si hay construcciones a demoler</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>TC Oficial hoy ($)</label>
+            <input type="number" id="tcOficial" placeholder="Ej: 1400" required>
+          </div>
+          <div class="field">
+            <label>TC Blue hoy ($)</label>
+            <input type="number" id="tcBlue" placeholder="Ej: 1410" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Descuento venta rápida</label>
+          <div class="zona-grid">
+            <div class="zona-option" onclick="selectDescuento(this, 10)">
+              <div class="zona-dot"></div>
+              <div>
+                <div class="zona-name">10%</div>
+                <div class="zona-desc">Venta en plazo normal</div>
+              </div>
+            </div>
+            <div class="zona-option selected" onclick="selectDescuento(this, 15)">
+              <div class="zona-dot"></div>
+              <div>
+                <div class="zona-name">15–20%</div>
+                <div class="zona-desc">Venta rápida</div>
+              </div>
+            </div>
+            <div class="zona-option" onclick="selectDescuento(this, 25)">
+              <div class="zona-dot"></div>
+              <div>
+                <div class="zona-name">25%</div>
+                <div class="zona-desc">Liquidación urgente</div>
+              </div>
+            </div>
+          </div>
+          <input type="hidden" id="descuentoSeleccionado" value="15">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PASO 4: COMPARABLES -->
+    <div class="card" id="section4">
+      <div class="card-header">
+        <div class="card-icon">📊</div>
+        <div>
+          <div class="card-title">Comparables de mercado</div>
+          <div class="card-subtitle">Ingresá al menos 3 comparables con precio verificado</div>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div id="comparablesContainer">
+          <!-- Comparable 1 -->
+          <div class="comparable-item" id="comp-1">
+            <button type="button" class="comparable-remove" onclick="removeComp(1)">×</button>
+            <div class="field-row" style="margin-bottom: 8px;">
+              <div class="field" style="margin:0">
+                <label>Ubicación</label>
+                <input type="text" placeholder="Calle, barrio" name="comp_ubicacion[]">
+              </div>
+              <div class="field" style="margin:0">
+                <label>Fuente</label>
+                <input type="text" placeholder="Zonaprop, colega, etc." name="comp_fuente[]">
+              </div>
+            </div>
+            <div class="field-row" style="margin:0">
+              <div class="field" style="margin:0">
+                <label>Superficie (m²)</label>
+                <input type="number" placeholder="Ej: 300" name="comp_sup[]">
+              </div>
+              <div class="field" style="margin:0">
+                <label>Precio (USD)</label>
+                <input type="number" placeholder="Ej: 200000" name="comp_precio[]">
+              </div>
+              <div class="field" style="margin:0">
+                <label>Observaciones</label>
+                <input type="text" placeholder="Un frente, baldío..." name="comp_obs[]">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-add" onclick="addComp()">+ Agregar comparable</button>
+
+      </div>
+    </div>
+
+    <!-- PASO 5: DOCUMENTOS -->
+    <div class="card" id="section5">
+      <div class="card-header">
+        <div class="card-icon">📄</div>
+        <div>
+          <div class="card-title">Documentos de respaldo</div>
+          <div class="card-subtitle">Adjuntá los PDFs oficiales (opcional pero recomendado)</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field">
+            <label>Cedulón de Rentas</label>
+            <div class="upload-zone" id="zone-rentas">
+              <input type="file" accept=".pdf" onchange="fileSelected(this, 'zone-rentas', 'fname-rentas')">
+              <div class="upload-icon">📋</div>
+              <div class="upload-label">Arrastrá o hacé clic para subir</div>
+              <div class="upload-sub">PDF de Rentas Córdoba</div>
+              <div class="upload-filename" id="fname-rentas"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Reporte de Catastro</label>
+            <div class="upload-zone" id="zone-catastro">
+              <input type="file" accept=".pdf" onchange="fileSelected(this, 'zone-catastro', 'fname-catastro')">
+              <div class="upload-icon">🗺️</div>
+              <div class="upload-label">Arrastrá o hacé clic para subir</div>
+              <div class="upload-sub">PDF de Catastro Córdoba</div>
+              <div class="upload-filename" id="fname-catastro"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OBSERVACIONES -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📝</div>
+        <div>
+          <div class="card-title">Observaciones adicionales</div>
+          <div class="card-subtitle">Se incluirán en la sección de condicionantes del informe</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <textarea id="observaciones" rows="3" placeholder="Ingresá cualquier observación relevante sobre el inmueble, condicionantes especiales, situación legal, etc." style="resize:vertical"></textarea>
+      </div>
+    </div>
+
+    <!-- GENERATE -->
+    <button type="submit" class="btn-generate">
+      <span>Generar informe de tasación</span>
+      <span class="arrow">→</span>
+    </button>
+
+  </form>
+
+  <!-- SUCCESS -->
+  <div class="success-card" id="successCard">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Informe generado</div>
+    <div class="success-desc">El PDF está listo con los tres métodos de valuación y el precio de comercialización sugerido.</div>
+    <a href="#" class="btn-download" id="downloadBtn">
+      ⬇ Descargar PDF
+    </a>
+    <button class="btn-nueva" onclick="nuevaTasacion()">
+      Nueva tasación
+    </button>
+  </div>
+
+</main>
+
+<script>
+  let compCount = 1;
+  const factoresMercado = { deprimida: 1.09, normal: 1.20, consolidada: 1.30, premium: 1.45 };
+
+  function selectZona(el, val) {
+    document.querySelectorAll('.zona-grid:first-of-type .zona-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('zonaSeleccionada').value = val;
+  }
+
+  function selectDescuento(el, val) {
+    el.closest('.field').querySelectorAll('.zona-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('descuentoSeleccionado').value = val;
+  }
+
+  function fileSelected(input, zoneId, fnameId) {
+    const zone = document.getElementById(zoneId);
+    const fname = document.getElementById(fnameId);
+    if (input.files[0]) {
+      zone.classList.add('filled');
+      fname.textContent = input.files[0].name;
+    }
+  }
+
+  function addComp() {
+    compCount++;
+    const container = document.getElementById('comparablesContainer');
+    const div = document.createElement('div');
+    div.className = 'comparable-item';
+    div.id = `comp-${compCount}`;
+    div.innerHTML = `
+      <button type="button" class="comparable-remove" onclick="removeComp(${compCount})">×</button>
+      <div class="field-row" style="margin-bottom: 8px;">
+        <div class="field" style="margin:0">
+          <label>Ubicación</label>
+          <input type="text" placeholder="Calle, barrio" name="comp_ubicacion[]">
+        </div>
+        <div class="field" style="margin:0">
+          <label>Fuente</label>
+          <input type="text" placeholder="Zonaprop, colega, etc." name="comp_fuente[]">
+        </div>
+      </div>
+      <div class="field-row" style="margin:0">
+        <div class="field" style="margin:0">
+          <label>Superficie (m²)</label>
+          <input type="number" placeholder="Ej: 300" name="comp_sup[]">
+        </div>
+        <div class="field" style="margin:0">
+          <label>Precio (USD)</label>
+          <input type="number" placeholder="Ej: 200000" name="comp_precio[]">
+        </div>
+        <div class="field" style="margin:0">
+          <label>Observaciones</label>
+          <input type="text" placeholder="Un frente, baldío..." name="comp_obs[]">
+        </div>
+      </div>`;
+    container.appendChild(div);
+  }
+
+  function removeComp(id) {
+    const el = document.getElementById(`comp-${id}`);
+    if (el) el.remove();
+  }
+
+  const loadingSteps = [
+    'Leyendo datos del inmueble...',
+    'Calculando Método 1 – Comparativo de mercado...',
+    'Calculando Método 2 – Intrínseco (base catastral)...',
+    'Calculando Método 3 – Valor residual...',
+    'Determinando precio de comercialización sugerido...',
+    'Armando el informe PDF...',
+    'Aplicando branding Grupo Rodi...',
+    'Finalizando...',
+  ];
+
+  function simulateLoading(callback) {
+    const overlay = document.getElementById('loadingOverlay');
+    const stepEl  = document.getElementById('loadingStep');
+    const bar     = document.getElementById('loadingBar');
+    overlay.classList.add('active');
+    let i = 0;
+    const total = loadingSteps.length;
+    function next() {
+      if (i >= total) { callback(); return; }
+      stepEl.textContent = loadingSteps[i];
+      bar.style.width = `${Math.round(((i+1)/total)*100)}%`;
+      i++;
+      setTimeout(next, 600 + Math.random() * 400);
+    }
+    next();
+  }
+
+  function generarTasacion(e) {
+    e.preventDefault();
+
+    // Recopilar datos del formulario
+    const datos = {
+      nroCuenta:     document.getElementById('nroCuenta').value,
+      nomenclatura:  document.getElementById('nomenclatura').value,
+      titular:       document.getElementById('titular').value,
+      cuit:          document.getElementById('cuit').value,
+      domicilio:     document.getElementById('domicilio').value,
+      superficie:    parseFloat(document.getElementById('superficie').value),
+      tipoBien:      document.getElementById('tipoBien').value,
+      valTierra:     parseFloat(document.getElementById('valTierra').value) || 0,
+      valMejoras:    parseFloat(document.getElementById('valMejoras').value) || 0,
+      perfil:        document.getElementById('perfil').value,
+      apu:           document.getElementById('apu').value,
+      fos:           parseFloat(document.getElementById('fos').value) || 70,
+      fot:           parseFloat(document.getElementById('fot').value) || 2.5,
+      altMax:        parseFloat(document.getElementById('altMax').value) || 15,
+      caracter:      document.getElementById('caracter').value,
+      zona:          document.getElementById('zonaSeleccionada').value,
+      valorM2:       parseFloat(document.getElementById('valorM2').value),
+      costoDemo:     parseFloat(document.getElementById('costoDemo').value) || 80,
+      tcOficial:     parseFloat(document.getElementById('tcOficial').value),
+      tcBlue:        parseFloat(document.getElementById('tcBlue').value),
+      descuento:     parseFloat(document.getElementById('descuentoSeleccionado').value),
+      observaciones: document.getElementById('observaciones').value,
+    };
+
+    // Comparables
+    const ubics   = document.querySelectorAll('[name="comp_ubicacion[]"]');
+    const fuentes = document.querySelectorAll('[name="comp_fuente[]"]');
+    const sups    = document.querySelectorAll('[name="comp_sup[]"]');
+    const precios = document.querySelectorAll('[name="comp_precio[]"]');
+    const obs     = document.querySelectorAll('[name="comp_obs[]"]');
+    datos.comparables = [];
+    for (let i = 0; i < ubics.length; i++) {
+      if (ubics[i].value && precios[i].value) {
+        const sup   = parseFloat(sups[i].value) || 0;
+        const prec  = parseFloat(precios[i].value) || 0;
+        const usdm2 = sup > 0 ? Math.round(prec / sup) : 0;
+        datos.comparables.push({
+          ubicacion: ubics[i].value,
+          fuente:    fuentes[i].value,
+          sup:       sup,
+          precio:    prec,
+          usdm2:     usdm2,
+          obs:       obs[i].value,
+        });
+      }
+    }
+
+    simulateLoading(() => {
+      // Enviar al backend
+      fetch('/generar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+      })
+      .then(r => r.blob())
+      .then(blob => {
+        document.getElementById('loadingOverlay').classList.remove('active');
+        const url = URL.createObjectURL(blob);
+        const btn = document.getElementById('downloadBtn');
+        btn.href = url;
+        btn.download = `Tasacion_${datos.titular.replace(/\s+/g,'_')}.pdf`;
+        document.getElementById('successCard').classList.add('show');
+        document.getElementById('tasadorForm').style.display = 'none';
+        document.querySelector('.steps').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      })
+      .catch(() => {
+        document.getElementById('loadingOverlay').classList.remove('active');
+        alert('Error al generar el informe. Verificá la conexión con el servidor.');
+      });
+    });
+  }
+
+  function nuevaTasacion() {
+    document.getElementById('successCard').classList.remove('show');
+    document.getElementById('tasadorForm').style.display = 'block';
+    document.querySelector('.steps').style.display = 'flex';
+    document.getElementById('tasadorForm').reset();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Drag and drop
+  document.querySelectorAll('.upload-zone').forEach(zone => {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        zone.classList.add('filled');
+        const fname = zone.querySelector('.upload-filename');
+        if (fname) fname.textContent = file.name;
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
