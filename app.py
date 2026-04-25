@@ -506,9 +506,10 @@ def generar_pdf(d):
 
     sup_const    = sup * fot
     sup_vendible = sup_const * 0.85
-    precio_venta = 1000
+    precio_venta = float(d.get('precioVenta', 1000) or 1000)
+    costo_m2     = float(d.get('costoConst', 867) or 867)
     ingreso      = sup_vendible * precio_venta
-    costo_const  = sup_const * 867
+    costo_const  = sup_const * costo_m2
     costo_demol  = costo_demo * sup_demo
     honorarios   = costo_const * 0.10
     gastos_com   = ingreso * 0.04
@@ -691,8 +692,8 @@ def generar_pdf(d):
     story.append(sep(color=GRIS_MED, t=0.8))
     calc_m3 = [
         ['Concepto','Cálculo','USD'],
-        ['(+) Ingreso bruto',            f'{round(sup_vendible)} m² × USD {precio_venta}', fmt_u(ingreso)],
-        ['(−) Costo construcción',       f'{round(sup_const)} m² × USD 867',               f'− {fmt_u(costo_const)}'],
+        ['(+) Ingreso bruto',            f'{round(sup_vendible)} m² × USD {int(precio_venta)}', fmt_u(ingreso)],
+        ['(−) Costo construcción',       f'{round(sup_const)} m² × USD {int(costo_m2)}',         f'− {fmt_u(costo_const)}'],
         ['(−) Demolición (FACTOR CLAVE)',f'{sup_demo} m² × USD {costo_demo}',               f'− {fmt_u(costo_demol)}' if costo_demol > 0 else 'No aplica'],
         ['(−) Honorarios 10%',           '–',                                                f'− {fmt_u(honorarios)}'],
         ['(−) Comercialización 4%',      '–',                                                f'− {fmt_u(gastos_com)}'],
