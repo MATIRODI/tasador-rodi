@@ -242,7 +242,7 @@ Solo incluí comparables con precio USD confirmado. Si no encontrás suficientes
 expandí a barrios linderos de Córdoba Capital."""
 
         response = client.messages.create(
-            model="claude-opus-4-5",
+            model="claude-sonnet-4-5-20250929",
             max_tokens=1500,
             tools=[{"type": "web_search_20250305", "name": "web_search"}],
             messages=[{"role": "user", "content": prompt}]
