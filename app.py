@@ -40,18 +40,73 @@ def fmt_u(n): return f"USD {int(round(n)):,}".replace(",",".")
 def fmt_p(n): return f"$ {int(round(n)):,}".replace(",",".")
 def fmt_m2(n): return f"USD {int(round(n))}/m²"
 
+
 # ══════════════════════════════════════════════════════════════
-# MEJORA 1 — NORMATIVA AUTOMÁTICA
+# TIPOS DE CAMBIO AUTOMÁTICOS — bluelytics.com.ar
+# ══════════════════════════════════════════════════════════════
+_tc_cache = {
+    'data': None,
+    'timestamp': 0,
+}
+TC_CACHE_TTL = 600  # 10 minutos
+
+def obtener_tipos_cambio():
+    """
+    Consulta bluelytics.com.ar y retorna oficial y blue (venta).
+    Cachea el resultado por 10 minutos.
+    Fallback: valores hardcodeados si la API falla.
+    """
+    global _tc_cache
+    now = time.time()
+
+    if _tc_cache['data'] and (now - _tc_cache['timestamp']) < TC_CACHE_TTL:
+        return _tc_cache['data']
+
+    try:
+        resp = requests.get(
+            'https://api.bluelytics.com.ar/v2/latest',
+            timeout=6,
+            headers={'User-Agent': 'GrupoRodiTasador/1.0'}
+        )
+        resp.raise_for_status()
+        raw = resp.json()
+
+        data = {
+            'oficial': round(raw['oficial']['value_sell']),
+            'blue':    round(raw['blue']['value_sell']),
+            'fuente':  'bluelytics.com.ar',
+            'ultima_actualizacion': raw.get('last_update', ''),
+            'ok': True,
+        }
+
+        _tc_cache['data'] = data
+        _tc_cache['timestamp'] = now
+        print(f"TC actualizado — Oficial: {data['oficial']} | Blue: {data['blue']}")
+        return data
+
+    except Exception as e:
+        print(f"Error obteniendo TC: {e}")
+        fallback = {
+            'oficial': 1400,
+            'blue':    1410,
+            'fuente':  'fallback manual',
+            'ultima_actualizacion': '',
+            'ok': False,
+        }
+        # Usar caché vieja si existe, aunque esté vencida
+        if _tc_cache['data']:
+            _tc_cache['data']['ok'] = False
+            return _tc_cache['data']
+        return fallback
+
+
+# ══════════════════════════════════════════════════════════════
+# NORMATIVA AUTOMÁTICA
 # ══════════════════════════════════════════════════════════════
 def obtener_normativa(direccion):
-    """
-    Geocodifica la dirección y consulta el GIS de Córdoba
-    para obtener FOT, FOS, perfil y altura máxima.
-    """
     try:
-        # 1. Geocodificar con Nominatim (OpenStreetMap)
         headers = {'User-Agent': 'GrupoRodiTasador/1.0'}
-        geo_url = f"https://nominatim.openstreetmap.org/search"
+        geo_url = "https://nominatim.openstreetmap.org/search"
         geo_params = {
             'q': f"{direccion}, Córdoba, Argentina",
             'format': 'json',
@@ -66,7 +121,6 @@ def obtener_normativa(direccion):
         lat = float(geo_data[0]['lat'])
         lon = float(geo_data[0]['lon'])
 
-        # 2. Consultar GIS Municipalidad de Córdoba
         gis_url = "https://mapas.cordoba.gob.ar/server/rest/services/normativa/MapServer/identify"
         gis_params = {
             'f': 'json',
@@ -87,7 +141,6 @@ def obtener_normativa(direccion):
         if 'results' in gis_data:
             for item in gis_data['results']:
                 attrs = item.get('attributes', {})
-                # Buscar FOT
                 for k, v in attrs.items():
                     k_lower = k.lower()
                     if 'fot' in k_lower and v and str(v) not in ['Null','null','']:
@@ -114,10 +167,9 @@ def obtener_normativa(direccion):
 
 
 # ══════════════════════════════════════════════════════════════
-# MEJORA 3 — COMPARABLES AUTOMÁTICOS
+# COMPARABLES AUTOMÁTICOS
 # ══════════════════════════════════════════════════════════════
 def scraping_zonaprop(barrio, tipo='terreno'):
-    """Intenta scrapear Zonaprop para comparables de terrenos."""
     try:
         barrio_slug = barrio.lower().replace(' ', '-').replace('°','').replace('º','')
         url = f"https://www.zonaprop.com.ar/terrenos-venta-{barrio_slug}-cordoba.html"
@@ -131,24 +183,19 @@ def scraping_zonaprop(barrio, tipo='terreno'):
 
         soup = BeautifulSoup(resp.text, 'html.parser')
         comparables = []
-
-        # Buscar tarjetas de propiedades
         cards = soup.find_all('div', {'data-id': True}) or \
                 soup.find_all('div', class_=re.compile(r'posting|card|property', re.I))
 
         for card in cards[:8]:
             try:
                 texto = card.get_text(' ', strip=True)
-                # Extraer precio USD
                 precio_match = re.search(r'USD?\s*[\$]?\s*([\d\.]+)', texto, re.I)
-                # Extraer superficie
-                sup_match = re.search(r'(\d+)\s*m[²2]', texto)
-                # Extraer dirección
-                dir_match = re.search(r'([A-ZÁÉÍÓÚ][a-záéíóú\s]+\d+)', texto)
+                sup_match    = re.search(r'(\d+)\s*m[²2]', texto)
+                dir_match    = re.search(r'([A-ZÁÉÍÓÚ][a-záéíóú\s]+\d+)', texto)
 
                 if precio_match and sup_match:
                     precio = float(precio_match.group(1).replace('.',''))
-                    sup = float(sup_match.group(1))
+                    sup    = float(sup_match.group(1))
                     if precio > 10000 and sup > 50:
                         usdm2 = round(precio / sup)
                         comparables.append({
@@ -170,13 +217,8 @@ def scraping_zonaprop(barrio, tipo='terreno'):
 
 
 def comparables_via_claude(barrio, superficie_ref, tipo_bien):
-    """
-    Usa la API de Claude con web search para buscar comparables reales.
-    Fallback cuando el scraping falla.
-    """
     try:
         client = anthropic.Anthropic()
-
         prompt = f"""Buscá en internet publicaciones actuales (2025-2026) de terrenos en venta 
 en el barrio {barrio}, Córdoba Capital, Argentina. 
 Necesito entre 4 y 6 comparables con precio real publicado en USD.
@@ -200,28 +242,22 @@ Solo incluí comparables con precio USD confirmado. Si no encontrás suficientes
 expandí a barrios linderos de Córdoba Capital."""
 
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-opus-4-5",
             max_tokens=1500,
             tools=[{"type": "web_search_20250305", "name": "web_search"}],
             messages=[{"role": "user", "content": prompt}]
         )
 
-        # Extraer texto de la respuesta
         texto = ""
         for block in response.content:
             if block.type == "text":
                 texto += block.text
 
-        # Limpiar y parsear JSON
         texto = texto.strip()
-        # Remover posibles backticks
         texto = re.sub(r'```json|```', '', texto).strip()
-
-        # Buscar array JSON
         json_match = re.search(r'\[.*\]', texto, re.DOTALL)
         if json_match:
             comparables = json.loads(json_match.group())
-            # Validar y limpiar
             resultado = []
             for c in comparables:
                 if c.get('precio', 0) > 0 and c.get('ubicacion'):
@@ -229,7 +265,6 @@ expandí a barrios linderos de Córdoba Capital."""
                         c['usdm2'] = round(c['precio'] / c['sup'])
                     resultado.append(c)
             return resultado[:6]
-
         return []
 
     except Exception as e:
@@ -238,21 +273,14 @@ expandí a barrios linderos de Córdoba Capital."""
 
 
 def obtener_comparables(barrio, superficie_ref, tipo_bien):
-    """
-    Intenta scraping primero. Si falla o trae menos de 3, usa Claude.
-    """
     print(f"Buscando comparables para {barrio}...")
-
-    # Intentar scraping
     comparables = scraping_zonaprop(barrio, tipo_bien)
     print(f"Scraping trajo {len(comparables)} comparables")
 
-    # Si scraping trae menos de 3, complementar con Claude
     if len(comparables) < 3:
         print("Complementando con Claude API...")
         claude_comps = comparables_via_claude(barrio, superficie_ref, tipo_bien)
         print(f"Claude trajo {len(claude_comps)} comparables")
-        # Combinar evitando duplicados por ubicación
         ubicaciones_existentes = {c['ubicacion'].lower() for c in comparables}
         for c in claude_comps:
             if c['ubicacion'].lower() not in ubicaciones_existentes:
@@ -263,17 +291,12 @@ def obtener_comparables(barrio, superficie_ref, tipo_bien):
 
 
 def sugerir_valor_m2(comparables, superficie, zona, tiene_demolicion):
-    """
-    Calcula el valor USD/m² sugerido a partir de los comparables.
-    """
     if not comparables:
         return None
-
     precios_m2 = [c['usdm2'] for c in comparables if c.get('usdm2', 0) > 0]
     if not precios_m2:
         return None
 
-    # Eliminar outliers (valores fuera de 1.5 IQR)
     precios_sorted = sorted(precios_m2)
     n = len(precios_sorted)
     if n >= 4:
@@ -291,10 +314,9 @@ def sugerir_valor_m2(comparables, superficie, zona, tiene_demolicion):
     minimo   = min(precios_filtrados)
     maximo   = max(precios_filtrados)
 
-    # Aplicar descuentos por condicionantes
     factor_zona = {'deprimida': 0.85, 'normal': 0.92, 'consolidada': 1.0, 'premium': 1.10}.get(zona, 0.92)
     factor_demo = 0.90 if tiene_demolicion else 1.0
-    factor_sup  = 0.95 if superficie > 800 else 1.0  # parcelas grandes tienen descuento
+    factor_sup  = 0.95 if superficie > 800 else 1.0
 
     valor_sugerido = round(promedio * factor_zona * factor_demo * factor_sup)
     rango_min = round(minimo * factor_zona * factor_demo * factor_sup)
@@ -334,6 +356,7 @@ def estilos():
     s['fnm']   = B('fnm',  fontName='Helvetica-Bold',   fontSize=8.5,textColor=AZUL,    alignment=TA_CENTER, leading=11)
     s['fdt']   = B('fdt',  fontName='Helvetica',        fontSize=8,  textColor=NEGRO,   alignment=TA_CENTER, leading=10)
     s['alerta']= B('alr',  fontName='Helvetica-Bold',   fontSize=9,  textColor=colors.HexColor('#7B3F00'), alignment=TA_JUSTIFY, leading=13)
+    s['tc']    = B('tc',   fontName='Helvetica',        fontSize=7.5,textColor=colors.HexColor('#444444'), alignment=TA_CENTER, leading=10)
     return s
 
 def header_footer(c, doc):
@@ -386,11 +409,25 @@ def generar_pdf(d):
     story = []
     fecha_hoy = datetime.datetime.now().strftime('%d/%m/%Y')
 
+    # ── TIPOS DE CAMBIO ───────────────────────────────────────
+    # Prioridad: los que vienen del formulario (usuario puede corregir)
+    # Si el frontend los mandó como 0 o vacíos, usar los automáticos
+    tc_of_form = float(d.get('tcOficial', 0) or 0)
+    tc_bl_form = float(d.get('tcBlue', 0) or 0)
+
+    if tc_of_form > 100 and tc_bl_form > 100:
+        tc_of = tc_of_form
+        tc_bl = tc_bl_form
+        tc_fuente = 'ingresado manualmente'
+    else:
+        tc_auto = obtener_tipos_cambio()
+        tc_of = tc_auto['oficial']
+        tc_bl = tc_auto['blue']
+        tc_fuente = tc_auto.get('fuente', 'automático')
+
     # ── CÁLCULOS ──────────────────────────────────────────────
     sup          = float(d.get('superficie', 0))
     val_m2       = float(d.get('valorM2', 0))
-    tc_of        = float(d.get('tcOficial', 1400))
-    tc_bl        = float(d.get('tcBlue', 1410))
     val_tierra   = float(d.get('valTierra', 0))
     val_mejoras  = float(d.get('valMejoras', 0))
     zona         = d.get('zona', 'deprimida')
@@ -406,14 +443,10 @@ def generar_pdf(d):
     pisos        = max(1, int(alt_max / 3.5))
     comps        = d.get('comparables', [])
 
-    # Método 1
     m1_total     = sup * val_m2
-
-    # Método 2
     val_cat_usd  = val_tierra / tc_bl if tc_bl > 0 and val_tierra > 0 else 0
     m2_total     = val_cat_usd * factor if val_cat_usd > 0 else m1_total
 
-    # Método 3
     sup_const    = sup * fot
     sup_vendible = sup_const * 0.85
     precio_venta = 1000
@@ -442,7 +475,22 @@ def generar_pdf(d):
         ('BOTTOMPADDING', (0,-1), (-1,-1), 12),
     ]))
     story.append(tit)
-    story.append(Spacer(1, 0.4*cm))
+    story.append(Spacer(1, 0.3*cm))
+
+    # ── AVISO TC AUTOMÁTICO ───────────────────────────────────
+    hora_tc = datetime.datetime.now().strftime('%d/%m/%Y %H:%M')
+    tc_info = Table([[Paragraph(
+        f'💱  Tipos de cambio aplicados ({tc_fuente}) — '
+        f'TC Oficial: {fmt_p(tc_of)}  |  TC Blue: {fmt_p(tc_bl)}  '
+        f'— Consultado: {hora_tc} hs',
+        s['tc'])]], colWidths=[16.5*cm])
+    tc_info.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#EAF3DE')),
+        ('BOX',        (0,0), (-1,-1), 0.8, colors.HexColor('#3B6D11')),
+        ('ROWPADDING', (0,0), (-1,-1), 6),
+    ]))
+    story.append(tc_info)
+    story.append(Spacer(1, 0.25*cm))
 
     aviso = Table([[Paragraph(
         '⚠  ACLARACIÓN: El tasador no pudo ingresar físicamente al inmueble. '
@@ -475,14 +523,16 @@ def generar_pdf(d):
     story.append(Paragraph('2. CARACTERÍSTICAS FÍSICAS Y NORMATIVAS', s['sec']))
     story.append(sep())
     story.append(tbl_ficha([
-        ['Superficie total',       f'{sup} m²'],
-        ['FOS',                    f'{fos_pct}%  →  ocupación máx. en planta: {round(sup*fos)} m²'],
-        ['FOT',                    f'{fot}  →  superficie total construible: {round(sup*fot)} m²'],
-        ['Altura máxima',          f'{alt_max} m (aprox. {pisos} pisos)'],
-        ['Valuación fiscal tierra',fmt_p(val_tierra)],
+        ['Superficie total',        f'{sup} m²'],
+        ['FOS',                     f'{fos_pct}%  →  ocupación máx. en planta: {round(sup*fos)} m²'],
+        ['FOT',                     f'{fot}  →  superficie total construible: {round(sup*fot)} m²'],
+        ['Altura máxima',           f'{alt_max} m (aprox. {pisos} pisos)'],
+        ['Valuación fiscal tierra', fmt_p(val_tierra)],
         ['Valuación fiscal mejoras',fmt_p(val_mejoras)],
-        ['Zona de mercado',        f"{zona.capitalize()} – Factor: {factor}"],
-        ['Demolición',             f"{tipo_demo.capitalize()} – USD {costo_demo}/m² × {sup_demo} m² = {fmt_u(costo_demol)}" if costo_demol > 0 else "No aplica"],
+        ['Zona de mercado',         f"{zona.capitalize()} – Factor: {factor}"],
+        ['Demolición',              f"{tipo_demo.capitalize()} – USD {costo_demo}/m² × {sup_demo} m² = {fmt_u(costo_demol)}" if costo_demol > 0 else "No aplica"],
+        ['TC Oficial aplicado',     f"{fmt_p(tc_of)}  ({tc_fuente})"],
+        ['TC Blue aplicado',        f"{fmt_p(tc_bl)}  ({tc_fuente})"],
     ], s))
     story.append(Spacer(1, 0.3*cm))
 
@@ -584,13 +634,13 @@ def generar_pdf(d):
     story.append(sep(color=GRIS_MED, t=0.8))
     calc_m3 = [
         ['Concepto','Cálculo','USD'],
-        ['(+) Ingreso bruto',       f'{round(sup_vendible)} m² × USD {precio_venta}', fmt_u(ingreso)],
-        ['(−) Costo construcción',  f'{round(sup_const)} m² × USD 867',               f'− {fmt_u(costo_const)}'],
-        ['(−) Demolición (FACTOR CLAVE)', f'{sup_demo} m² × USD {costo_demo}',        f'− {fmt_u(costo_demol)}' if costo_demol > 0 else 'No aplica'],
-        ['(−) Honorarios 10%',      '–',                                               f'− {fmt_u(honorarios)}'],
-        ['(−) Comercialización 4%', '–',                                               f'− {fmt_u(gastos_com)}'],
-        ['(−) Utilidad 18%',        '–',                                               f'− {fmt_u(utilidad)}'],
-        ['VALOR RESIDUAL',          '–',                                               fmt_u(m3_total) if m3_total > 0 else 'NEGATIVO'],
+        ['(+) Ingreso bruto',            f'{round(sup_vendible)} m² × USD {precio_venta}', fmt_u(ingreso)],
+        ['(−) Costo construcción',       f'{round(sup_const)} m² × USD 867',               f'− {fmt_u(costo_const)}'],
+        ['(−) Demolición (FACTOR CLAVE)',f'{sup_demo} m² × USD {costo_demo}',               f'− {fmt_u(costo_demol)}' if costo_demol > 0 else 'No aplica'],
+        ['(−) Honorarios 10%',           '–',                                                f'− {fmt_u(honorarios)}'],
+        ['(−) Comercialización 4%',      '–',                                                f'− {fmt_u(gastos_com)}'],
+        ['(−) Utilidad 18%',             '–',                                                f'− {fmt_u(utilidad)}'],
+        ['VALOR RESIDUAL',               '–',                                                fmt_u(m3_total) if m3_total > 0 else 'NEGATIVO'],
     ]
     rows_m3 = []
     for i, row in enumerate(calc_m3):
@@ -642,6 +692,7 @@ def generar_pdf(d):
         [Paragraph('VALOR DE TASACIÓN ADOPTADO', s['ch'])],
         [Paragraph(fmt_u(valor_adoptado), s['num'])],
         [Paragraph(f"TC Oficial: {fmt_p(valor_adoptado*tc_of)}    |    TC Blue: {fmt_p(valor_adoptado*tc_bl)}", s['subtit'])],
+        [Paragraph(f'Tipos de cambio al {hora_tc} hs — Fuente: {tc_fuente}', s['pie'])],
         [Paragraph('Vigencia: 90 días corridos desde la fecha de emisión', s['pie'])],
     ]
     tbl_val = Table(val_box, colWidths=[16.5*cm])
@@ -659,11 +710,11 @@ def generar_pdf(d):
     story.append(sep())
     fact_rows = [
         ['Factor','Fundamento','%'],
-        ['Zona de mercado',          f"Zona {zona} – baja rotación de inmuebles.",         '5–7%'],
-        ['Venta en plazo reducido',  'Comitente requiere comercialización rápida.',          '5–7%'],
-        ['Demolición (FACTOR CLAVE)',f"Construcciones existentes ({tipo_demo}). Costo estimado: {fmt_u(costo_demol)}. Principal condicionante del valor." if costo_demol > 0 else 'No aplica en este caso.', '3–6%' if costo_demol > 0 else '–'],
-        ['No inspección interior',   'Incertidumbre adicional para el adquirente.',          '2–3%'],
-        ['DESCUENTO TOTAL',          '–',                                                   f'{int(descuento)}–{int(descuento+5)}%'],
+        ['Zona de mercado',           f"Zona {zona} – baja rotación de inmuebles.", '5–7%'],
+        ['Venta en plazo reducido',   'Comitente requiere comercialización rápida.', '5–7%'],
+        ['Demolición (FACTOR CLAVE)', f"Construcciones existentes ({tipo_demo}). Costo estimado: {fmt_u(costo_demol)}. Principal condicionante del valor." if costo_demol > 0 else 'No aplica en este caso.', '3–6%' if costo_demol > 0 else '–'],
+        ['No inspección interior',    'Incertidumbre adicional para el adquirente.', '2–3%'],
+        ['DESCUENTO TOTAL',           '–', f'{int(descuento)}–{int(descuento+5)}%'],
     ]
     rows_f = []
     for i, row in enumerate(fact_rows):
@@ -730,9 +781,14 @@ def generar_pdf(d):
 def index():
     return app.send_static_file('index.html')
 
+@app.route('/api/tipos-cambio', methods=['GET'])
+def api_tipos_cambio():
+    """Retorna TC oficial y blue en tiempo real desde bluelytics.com.ar"""
+    data = obtener_tipos_cambio()
+    return jsonify(data)
+
 @app.route('/api/normativa', methods=['POST'])
 def api_normativa():
-    """Retorna FOT, FOS, perfil y altura para una dirección."""
     data = request.get_json()
     direccion = data.get('direccion', '')
     if not direccion:
@@ -744,8 +800,7 @@ def api_normativa():
 
 @app.route('/api/comparables', methods=['POST'])
 def api_comparables():
-    """Busca comparables automáticamente para un barrio."""
-    data = request.get_json()
+    data       = request.get_json()
     barrio     = data.get('barrio', '')
     superficie = float(data.get('superficie', 500))
     tipo_bien  = data.get('tipoBien', 'terreno')
@@ -761,7 +816,6 @@ def api_comparables():
 
 @app.route('/api/sugerir-valor', methods=['POST'])
 def api_sugerir_valor():
-    """Sugiere valor USD/m² a partir de comparables y condicionantes."""
     data       = request.get_json()
     comps      = data.get('comparables', [])
     superficie = float(data.get('superficie', 500))
