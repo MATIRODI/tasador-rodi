@@ -408,6 +408,44 @@ input.tc-auto{border-color:rgba(30,126,90,.4)!important;background:rgba(30,126,9
           <div class="input-hint">Podés usar el valor sugerido por el sistema o definirlo manualmente</div>
         </div>
 
+        <!-- CATEGORÍA DE DESARROLLO -->
+        <div class="field">
+          <label>Categoría de desarrollo (Método 3)</label>
+          <div class="zona-grid" style="grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+            <div class="zona-option" onclick="selectCategoria(this,'economica')">
+              <div class="zona-dot"></div>
+              <div><div class="zona-name">Económica</div><div class="zona-desc">Costo USD 600 · Venta USD 800/m²</div></div>
+            </div>
+            <div class="zona-option selected" onclick="selectCategoria(this,'estandar')">
+              <div class="zona-dot"></div>
+              <div><div class="zona-name">Estándar</div><div class="zona-desc">Costo USD 867 · Venta USD 1.000/m²</div></div>
+            </div>
+            <div class="zona-option" onclick="selectCategoria(this,'premium')">
+              <div class="zona-dot"></div>
+              <div><div class="zona-name">Premium</div><div class="zona-desc">Costo USD 1.200 · Venta USD 1.400/m²</div></div>
+            </div>
+            <div class="zona-option" onclick="selectCategoria(this,'lujo')">
+              <div class="zona-dot"></div>
+              <div><div class="zona-name">Lujo</div><div class="zona-desc">Costo USD 1.800 · Venta USD 2.000/m²</div></div>
+            </div>
+          </div>
+          <input type="hidden" id="categoriaDesarrollo" value="estandar">
+          <div class="field-row" style="margin-top:8px">
+            <div class="field" style="margin:0">
+              <label style="font-size:11px">Costo construcción (USD/m²)</label>
+              <input type="number" id="costoConst" value="867" min="1"
+                     oninput="document.getElementById('categoriaDesarrollo').value='custom'">
+              <div class="input-hint">Editable si querés ajustar por caso</div>
+            </div>
+            <div class="field" style="margin:0">
+              <label style="font-size:11px">Precio de venta ref. (USD/m²)</label>
+              <input type="number" id="precioVenta" value="1000" min="1"
+                     oninput="document.getElementById('categoriaDesarrollo').value='custom'">
+              <div class="input-hint">Editable si querés ajustar por caso</div>
+            </div>
+          </div>
+        </div>
+
         <!-- TC AUTOMÁTICO BANNER -->
         <div class="tc-banner loading" id="tcBanner">
           <span class="dot-pulse"></span>
@@ -740,6 +778,25 @@ function removeComp(id) {
   if (el) el.remove();
 }
 
+// ── CATEGORÍA DESARROLLO ─────────────────────────────
+const CATEGORIAS = {
+  economica: { costo: 600,  venta: 800  },
+  estandar:  { costo: 867,  venta: 1000 },
+  premium:   { costo: 1200, venta: 1400 },
+  lujo:      { costo: 1800, venta: 2000 },
+};
+
+function selectCategoria(el, val) {
+  el.closest('.zona-grid').querySelectorAll('.zona-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('categoriaDesarrollo').value = val;
+  const cat = CATEGORIAS[val];
+  if (cat) {
+    document.getElementById('costoConst').value  = cat.costo;
+    document.getElementById('precioVenta').value = cat.venta;
+  }
+}
+
 // ── ZONA / DESCUENTO ─────────────────────────────────
 function selectZona(el, val) {
   el.closest('.zona-grid').querySelectorAll('.zona-option').forEach(o => o.classList.remove('selected'));
@@ -820,6 +877,8 @@ function generarTasacion(e) {
     tipoDemo:     document.getElementById('tipoDemo').value,
     supDemo:      parseFloat(document.getElementById('supDemo').value)||0,
     valorM2:      parseFloat(document.getElementById('valorM2').value),
+    costoConst:   parseFloat(document.getElementById('costoConst').value) || 867,
+    precioVenta:  parseFloat(document.getElementById('precioVenta').value) || 1000,
     tcOficial:    parseFloat(document.getElementById('tcOficial').value),
     tcBlue:       parseFloat(document.getElementById('tcBlue').value),
     descuento:    parseFloat(document.getElementById('descuentoSeleccionado').value),
