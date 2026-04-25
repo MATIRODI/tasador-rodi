@@ -37,11 +37,23 @@ input:focus,select:focus,textarea:focus{border-color:var(--oro);box-shadow:0 0 0
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 .field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
 
+/* ── TC AUTOMÁTICO BANNER ── */
+.tc-banner{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:8px;font-size:12px;margin-bottom:1.25rem;border:1px solid rgba(30,126,90,.25);background:rgba(30,126,90,.06);color:#155a3a}
+.tc-banner.loading{border-color:rgba(201,168,76,.3);background:rgba(201,168,76,.06);color:var(--warning)}
+.tc-banner.error{border-color:rgba(192,57,43,.25);background:rgba(192,57,43,.05);color:var(--error)}
+.tc-values{display:flex;gap:16px;align-items:center;flex:1}
+.tc-val{display:flex;flex-direction:column;gap:1px}
+.tc-val-label{font-size:10px;opacity:.7;letter-spacing:.04em}
+.tc-val-num{font-size:14px;font-weight:600}
+.tc-source{font-size:10px;opacity:.6;margin-left:auto}
+.tc-refresh{background:none;border:none;cursor:pointer;font-size:14px;opacity:.5;transition:opacity .2s;padding:2px}
+.tc-refresh:hover{opacity:1}
+.dot-pulse{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse .8s infinite;display:inline-block}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+
 /* ── AUTO BADGE ── */
 .auto-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;background:rgba(30,126,90,.1);color:var(--success);border:1px solid rgba(30,126,90,.2);padding:3px 8px;border-radius:12px;margin-left:8px;font-weight:500}
 .auto-loading{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);margin-left:8px}
-.dot-pulse{width:6px;height:6px;border-radius:50%;background:var(--oro);animation:pulse .8s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 
 /* ── NORMATIVA STATUS ── */
 .normativa-status{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:1rem;display:none;align-items:center;gap:8px}
@@ -49,7 +61,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--oro);box-shadow:0 0 0
 .normativa-status.ok{background:rgba(30,126,90,.06);border:1px solid rgba(30,126,90,.2);color:var(--success);display:flex}
 .normativa-status.error{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.2);color:var(--error);display:flex}
 
-/* ── DEMOLICION CHECKLIST ── */
+/* ── DEMOLICION ── */
 .demo-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .demo-option{border:1.5px solid var(--gris);border-radius:8px;padding:12px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:10px}
 .demo-option:hover{border-color:var(--oro);background:rgba(201,168,76,.04)}
@@ -63,7 +75,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--oro);box-shadow:0 0 0
 .demo-sup-field{margin-top:1rem;display:none}
 .demo-sup-field.show{display:block}
 
-/* ── VALOR M2 SUGERIDO ── */
+/* ── VALOR SUGERIDO ── */
 .valor-sugerido-box{background:rgba(201,168,76,.06);border:1.5px solid rgba(201,168,76,.3);border-radius:10px;padding:14px 16px;margin-bottom:1rem;display:none}
 .valor-sugerido-box.show{display:block}
 .vs-title{font-size:11px;font-weight:600;color:var(--azul);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
@@ -74,12 +86,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--oro);box-shadow:0 0 0
 .btn-usar-valor{font-size:12px;font-weight:600;background:var(--azul);color:white;border:none;border-radius:6px;padding:7px 14px;cursor:pointer;transition:all .15s;margin-top:8px}
 .btn-usar-valor:hover{background:var(--azul2)}
 
-/* ── COMPARABLES AUTO ── */
+/* ── COMPARABLES ── */
 .comp-auto-status{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:1rem;display:none;align-items:center;gap:8px}
 .comp-auto-status.loading{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);color:var(--warning);display:flex}
 .comp-auto-status.ok{background:rgba(30,126,90,.06);border:1px solid rgba(30,126,90,.2);color:var(--success);display:flex}
 .comp-auto-badge{font-size:10px;background:rgba(30,126,90,.1);color:var(--success);border:1px solid rgba(30,126,90,.2);padding:2px 8px;border-radius:10px;margin-left:6px}
-
 .comparable-item{border:1px solid var(--gris);border-radius:8px;padding:1rem;margin-bottom:8px;position:relative;background:var(--crema)}
 .comparable-item.auto{border-color:rgba(30,126,90,.3);background:rgba(30,126,90,.03)}
 .comp-auto-tag{position:absolute;top:8px;right:36px;font-size:10px;color:var(--success);background:rgba(30,126,90,.1);padding:2px 6px;border-radius:6px}
@@ -89,7 +100,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--oro);box-shadow:0 0 0
 .btn-buscar-comps{display:flex;align-items:center;gap:6px;padding:9px 16px;background:var(--azul);color:white;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;margin-bottom:1rem}
 .btn-buscar-comps:hover{background:var(--azul2)}
 
-/* ── ZONA OPTIONS ── */
+/* ── ZONA / DESCUENTO ── */
 .zona-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .zona-option{border:1.5px solid var(--gris);border-radius:8px;padding:12px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px}
 .zona-option:hover{border-color:var(--oro);background:rgba(201,168,76,.04)}
@@ -103,6 +114,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--oro);box-shadow:0 0 0
 
 .info-box{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--azul);line-height:1.6;margin-bottom:1.25rem;display:flex;gap:10px;align-items:flex-start}
 .divider{border:none;border-top:1px solid var(--gris);margin:1.5rem 0}
+
+/* ── TC INPUT HIGHLIGHT ── */
+input.tc-auto{border-color:rgba(30,126,90,.4)!important;background:rgba(30,126,90,.03)!important}
 
 .btn-generate{width:100%;padding:16px;background:var(--azul);color:white;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:.02em;margin-top:1.5rem}
 .btn-generate:hover{background:var(--azul2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(13,27,42,.25)}
@@ -305,31 +319,19 @@ input:focus,select:focus,textarea:focus{border-color:var(--oro);box-shadow:0 0 0
         <div class="demo-options">
           <div class="demo-option selected" onclick="selectDemo(this,'ninguna')">
             <div class="demo-radio"></div>
-            <div>
-              <div class="demo-name">No tiene</div>
-              <div class="demo-price">Sin costo de demolición</div>
-            </div>
+            <div><div class="demo-name">No tiene</div><div class="demo-price">Sin costo de demolición</div></div>
           </div>
           <div class="demo-option" onclick="selectDemo(this,'antigua')">
             <div class="demo-radio"></div>
-            <div>
-              <div class="demo-name">Construcciones antiguas</div>
-              <div class="demo-price">Pre-1960 · USD 80/m²</div>
-            </div>
+            <div><div class="demo-name">Construcciones antiguas</div><div class="demo-price">Pre-1960 · USD 80/m²</div></div>
           </div>
           <div class="demo-option" onclick="selectDemo(this,'moderna')">
             <div class="demo-radio"></div>
-            <div>
-              <div class="demo-name">Construcciones modernas</div>
-              <div class="demo-price">Post-1990 · USD 120/m²</div>
-            </div>
+            <div><div class="demo-name">Construcciones modernas</div><div class="demo-price">Post-1990 · USD 120/m²</div></div>
           </div>
           <div class="demo-option" onclick="selectDemo(this,'hormigon')">
             <div class="demo-radio"></div>
-            <div>
-              <div class="demo-name">Estructura de hormigón</div>
-              <div class="demo-price">Armado · USD 180/m²</div>
-            </div>
+            <div><div class="demo-name">Estructura de hormigón</div><div class="demo-price">Armado · USD 180/m²</div></div>
           </div>
         </div>
         <input type="hidden" id="tipoDemo" value="ninguna">
@@ -355,18 +357,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--oro);box-shadow:0 0 0
           🔍 Buscar comparables automáticamente
         </button>
         <div class="comp-auto-status" id="compAutoStatus"></div>
-
-        <!-- Valor sugerido -->
         <div class="valor-sugerido-box" id="valorSugeridoBox">
           <div class="vs-title">Valor USD/m² sugerido por el sistema</div>
           <div class="vs-range" id="vsRange">–</div>
           <div class="vs-desc" id="vsDesc">Basado en comparables relevados, ajustado por condicionantes.</div>
           <div class="vs-factores" id="vsFactores"></div>
-          <button type="button" class="btn-usar-valor" onclick="usarValorSugerido()">
-            Usar este valor ✓
-          </button>
+          <button type="button" class="btn-usar-valor" onclick="usarValorSugerido()">Usar este valor ✓</button>
         </div>
-
         <div id="comparablesContainer"></div>
         <button type="button" class="btn-add" onclick="addComp()">+ Agregar comparable manual</button>
       </div>
@@ -384,16 +381,31 @@ input:focus,select:focus,textarea:focus{border-color:var(--oro);box-shadow:0 0 0
           <input type="number" id="valorM2" placeholder="Ej: 230" required min="1">
           <div class="input-hint">Podés usar el valor sugerido por el sistema o definirlo manualmente</div>
         </div>
+
+        <!-- TC AUTOMÁTICO BANNER -->
+        <div class="tc-banner loading" id="tcBanner">
+          <span class="dot-pulse"></span>
+          <span id="tcBannerText">Cargando tipos de cambio...</span>
+        </div>
+
         <div class="field-row">
           <div class="field">
-            <label>TC Oficial hoy ($)</label>
-            <input type="number" id="tcOficial" placeholder="Ej: 1400" required>
+            <label>TC Oficial hoy ($)
+              <span id="tcOficialBadge" style="display:none;font-size:10px;font-weight:400;color:var(--success);margin-left:6px;text-transform:none;letter-spacing:0">● automático</span>
+            </label>
+            <input type="number" id="tcOficial" placeholder="Cargando..." required
+                   oninput="tcEditado()">
           </div>
           <div class="field">
-            <label>TC Blue hoy ($)</label>
-            <input type="number" id="tcBlue" placeholder="Ej: 1410" required>
+            <label>TC Blue hoy ($)
+              <span id="tcBlueBadge" style="display:none;font-size:10px;font-weight:400;color:var(--success);margin-left:6px;text-transform:none;letter-spacing:0">● automático</span>
+            </label>
+            <input type="number" id="tcBlue" placeholder="Cargando..." required
+                   oninput="tcEditado()">
           </div>
         </div>
+        <div class="input-hint" id="tcHint" style="margin-top:-12px;margin-bottom:1.25rem">Podés editar los valores si querés usar un tipo de cambio diferente.</div>
+
         <div class="field">
           <label>Descuento venta rápida</label>
           <div class="zona-grid">
@@ -445,8 +457,75 @@ input:focus,select:focus,textarea:focus{border-color:var(--oro);box-shadow:0 0 0
 let compCount = 0;
 let valorSugeridoActual = null;
 let normativaTimer = null;
+let tcCargadoAutomatico = false;
 
-// ── NORMATIVA AUTOMÁTICA ──────────────────────────────────
+// ══════════════════════════════════════════════════════
+// TC AUTOMÁTICO — carga al iniciar la página
+// ══════════════════════════════════════════════════════
+async function cargarTC() {
+  const banner    = document.getElementById('tcBanner');
+  const bannerTxt = document.getElementById('tcBannerText');
+  const ofInput   = document.getElementById('tcOficial');
+  const blInput   = document.getElementById('tcBlue');
+  const ofBadge   = document.getElementById('tcOficialBadge');
+  const blBadge   = document.getElementById('tcBlueBadge');
+  const hint      = document.getElementById('tcHint');
+
+  try {
+    const resp = await fetch('/api/tipos-cambio');
+    const data = await resp.json();
+
+    if (data.oficial && data.blue) {
+      ofInput.value = data.oficial;
+      blInput.value = data.blue;
+      ofInput.classList.add('tc-auto');
+      blInput.classList.add('tc-auto');
+      ofBadge.style.display = 'inline';
+      blBadge.style.display = 'inline';
+      tcCargadoAutomatico = true;
+
+      // Formatear fecha de actualización
+      let fechaStr = '';
+      if (data.ultima_actualizacion) {
+        try {
+          const d = new Date(data.ultima_actualizacion);
+          fechaStr = ` · Act. ${d.toLocaleTimeString('es-AR', {hour:'2-digit',minute:'2-digit'})} hs`;
+        } catch(e) {}
+      }
+
+      banner.className = 'tc-banner';
+      bannerTxt.innerHTML =
+        `✓ Tipos de cambio cargados automáticamente — ` +
+        `Oficial: <strong>$${data.oficial.toLocaleString('es-AR')}</strong> · ` +
+        `Blue: <strong>$${data.blue.toLocaleString('es-AR')}</strong>` +
+        `${fechaStr} · Fuente: ${data.fuente || 'bluelytics.com.ar'} ` +
+        `<button onclick="cargarTC()" style="margin-left:8px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--success);text-decoration:underline;padding:0">↺ Actualizar</button>`;
+
+      hint.textContent = 'Valores cargados automáticamente. Podés editarlos si querés usar un tipo de cambio diferente.';
+    } else {
+      throw new Error('Respuesta incompleta');
+    }
+  } catch(e) {
+    banner.className = 'tc-banner error';
+    bannerTxt.innerHTML =
+      '⚠ No se pudo cargar el TC automáticamente. ' +
+      `<button onclick="cargarTC()" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--error);text-decoration:underline;padding:0;margin-left:4px">Reintentar</button> ` +
+      '— Ingresá los valores manualmente.';
+    ofInput.placeholder = 'Ej: 1418';
+    blInput.placeholder = 'Ej: 1420';
+  }
+}
+
+function tcEditado() {
+  // Si el usuario edita, sacar el estilo automático
+  document.getElementById('tcOficial').classList.remove('tc-auto');
+  document.getElementById('tcBlue').classList.remove('tc-auto');
+  document.getElementById('tcOficialBadge').style.display = 'none';
+  document.getElementById('tcBlueBadge').style.display = 'none';
+  tcCargadoAutomatico = false;
+}
+
+// ── NORMATIVA AUTOMÁTICA ─────────────────────────────
 function domicilioChanged() {
   clearTimeout(normativaTimer);
   normativaTimer = setTimeout(buscarNormativa, 1200);
@@ -473,13 +552,11 @@ async function buscarNormativa() {
       body: JSON.stringify({direccion: dir})
     });
     const data = await resp.json();
-
     loader.style.display = 'none';
 
     if (data.ok && data.data) {
       const n = data.data;
       let camposCargados = [];
-
       if (n.fot)    { document.getElementById('fot').value    = n.fot;    camposCargados.push(`FOT: ${n.fot}`); }
       if (n.fos)    { document.getElementById('fos').value    = n.fos;    camposCargados.push(`FOS: ${n.fos}%`); }
       if (n.altMax) { document.getElementById('altMax').value = n.altMax; camposCargados.push(`Alt. máx: ${n.altMax}m`); }
@@ -490,7 +567,7 @@ async function buscarNormativa() {
         }
         camposCargados.push(`Perfil: ${n.perfil}`);
       }
-      if (n.apu)    { document.getElementById('apu').value    = n.apu;    camposCargados.push(`APU: ${n.apu}`); }
+      if (n.apu) { document.getElementById('apu').value = n.apu; camposCargados.push(`APU: ${n.apu}`); }
 
       if (camposCargados.length > 0) {
         status.className = 'normativa-status ok';
@@ -511,22 +588,21 @@ async function buscarNormativa() {
   }
 }
 
-// ── DEMOLICIÓN ───────────────────────────────────────────
+// ── DEMOLICIÓN ───────────────────────────────────────
 function selectDemo(el, val) {
   document.querySelectorAll('.demo-option').forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
   document.getElementById('tipoDemo').value = val;
-  const supField = document.getElementById('demoSupField');
-  supField.classList.toggle('show', val !== 'ninguna');
+  document.getElementById('demoSupField').classList.toggle('show', val !== 'ninguna');
 }
 
-// ── COMPARABLES AUTOMÁTICOS ──────────────────────────────
+// ── COMPARABLES AUTOMÁTICOS ──────────────────────────
 async function buscarComparables() {
-  const barrio    = document.getElementById('barrio').value || document.getElementById('domicilio').value;
-  const sup       = parseFloat(document.getElementById('superficie').value) || 500;
-  const tipoBien  = document.getElementById('tipoBien').value;
-  const zona      = document.getElementById('zonaSeleccionada').value;
-  const tipoDemo  = document.getElementById('tipoDemo').value;
+  const barrio   = document.getElementById('barrio').value || document.getElementById('domicilio').value;
+  const sup      = parseFloat(document.getElementById('superficie').value) || 500;
+  const tipoBien = document.getElementById('tipoBien').value;
+  const zona     = document.getElementById('zonaSeleccionada').value;
+  const tipoDemo = document.getElementById('tipoDemo').value;
 
   if (!barrio) { alert('Ingresá el barrio o domicilio primero'); return; }
 
@@ -545,18 +621,10 @@ async function buscarComparables() {
 
     if (data.ok && data.comparables && data.comparables.length > 0) {
       status.className = 'comp-auto-status ok';
-      status.innerHTML = `✓ Se encontraron ${data.comparables.length} comparables automáticamente <span class="comp-auto-badge">automático</span>`;
-
-      // Limpiar comparables existentes automáticos
+      status.innerHTML = `✓ Se encontraron ${data.comparables.length} comparables <span class="comp-auto-badge">automático</span>`;
       document.querySelectorAll('.comparable-item.auto').forEach(el => el.remove());
-
-      // Agregar comparables encontrados
       data.comparables.forEach(c => addCompAuto(c));
-
-      // Mostrar valor sugerido
-      if (data.sugerencia) {
-        mostrarValorSugerido(data.sugerencia);
-      }
+      if (data.sugerencia) mostrarValorSugerido(data.sugerencia);
     } else {
       status.className = 'comp-auto-status error';
       status.innerHTML = '⚠ No se encontraron comparables automáticos. Agregalos manualmente.';
@@ -568,8 +636,7 @@ async function buscarComparables() {
 }
 
 function mostrarValorSugerido(sug) {
-  const box = document.getElementById('valorSugeridoBox');
-  box.classList.add('show');
+  document.getElementById('valorSugeridoBox').classList.add('show');
   document.getElementById('vsRange').textContent =
     `USD ${sug.rango_min.toLocaleString('es-AR')} – USD ${sug.rango_max.toLocaleString('es-AR')}/m²`;
   document.getElementById('vsDesc').textContent =
@@ -577,9 +644,9 @@ function mostrarValorSugerido(sug) {
   const factores = document.getElementById('vsFactores');
   factores.innerHTML = '';
   const f = sug.factores || {};
-  if (f.zona !== 1)        factores.innerHTML += `<span class="vs-factor">Zona ×${f.zona}</span>`;
-  if (f.demolicion !== 1)  factores.innerHTML += `<span class="vs-factor">Demolición ×${f.demolicion}</span>`;
-  if (f.superficie !== 1)  factores.innerHTML += `<span class="vs-factor">Superficie ×${f.superficie}</span>`;
+  if (f.zona !== 1)       factores.innerHTML += `<span class="vs-factor">Zona ×${f.zona}</span>`;
+  if (f.demolicion !== 1) factores.innerHTML += `<span class="vs-factor">Demolición ×${f.demolicion}</span>`;
+  if (f.superficie !== 1) factores.innerHTML += `<span class="vs-factor">Superficie ×${f.superficie}</span>`;
   valorSugeridoActual = sug.sugerido;
 }
 
@@ -647,7 +714,7 @@ function removeComp(id) {
   if (el) el.remove();
 }
 
-// ── ZONA / DESCUENTO ──────────────────────────────────────
+// ── ZONA / DESCUENTO ─────────────────────────────────
 function selectZona(el, val) {
   el.closest('.zona-grid').querySelectorAll('.zona-option').forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
@@ -660,7 +727,7 @@ function selectDescuento(el, val) {
   document.getElementById('descuentoSeleccionado').value = val;
 }
 
-// ── GENERAR ───────────────────────────────────────────────
+// ── GENERAR ──────────────────────────────────────────
 const loadingSteps = [
   'Leyendo datos del inmueble...',
   'Calculando Método 1 – Comparativo...',
@@ -723,8 +790,8 @@ function generarTasacion(e) {
   const obs     = document.querySelectorAll('[name="comp_obs[]"]');
   for (let i = 0; i < ubics.length; i++) {
     if (ubics[i].value && precios[i].value) {
-      const sup   = parseFloat(sups[i].value)||0;
-      const prec  = parseFloat(precios[i].value)||0;
+      const sup  = parseFloat(sups[i].value)||0;
+      const prec = parseFloat(precios[i].value)||0;
       datos.comparables.push({
         ubicacion: ubics[i].value,
         fuente:    fuentes[i].value,
@@ -768,7 +835,12 @@ function nuevaTasacion() {
   document.getElementById('valorSugeridoBox').classList.remove('show');
   document.getElementById('normativaStatus').style.display = 'none';
   window.scrollTo({top:0,behavior:'smooth'});
+  // Recargar TC para la nueva tasación
+  cargarTC();
 }
+
+// ── INICIO ───────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', cargarTC);
 </script>
 </body>
 </html>
