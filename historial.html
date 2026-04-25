@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Historial de Tasaciones — Grupo Rodi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#0D1B2A;--azul2:#162436;--oro:#C9A84C;--oro2:#B8962E;--crema:#F9F6F0;--gris:#E8E4DC;--texto:#1A1A1A;--muted:#6B6B6B;--success:#1E7E5A;--error:#C0392B;--r:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',sans-serif;background:var(--azul);color:var(--texto);min-height:100vh;display:flex;flex-direction:column}
+header{background:var(--azul);border-bottom:1px solid rgba(201,168,76,.25);padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:14px}
+.logo-mark{width:36px;height:36px;background:var(--oro);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--azul)}
+.logo-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:white;letter-spacing:.02em}
+.logo-sub{font-size:10px;color:var(--oro);letter-spacing:.12em;text-transform:uppercase;margin-top:2px}
+.header-right{display:flex;align-items:center;gap:12px}
+.header-badge{font-size:11px;color:var(--oro);border:1px solid rgba(201,168,76,.4);padding:4px 12px;border-radius:20px;letter-spacing:.08em}
+.btn-nueva-tasa{font-size:12px;font-weight:600;background:var(--oro);color:var(--azul);border:none;padding:8px 16px;border-radius:8px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .2s}
+.btn-nueva-tasa:hover{background:var(--oro2)}
+main{flex:1;background:var(--crema);border-radius:20px 20px 0 0;padding:3rem 2.5rem;max-width:1000px;width:100%;margin:0 auto}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:500;color:var(--azul);margin-bottom:6px}
+.page-desc{font-size:14px;color:var(--muted);font-weight:300;margin-bottom:2rem}
+
+/* BÚSQUEDA */
+.search-bar{display:flex;gap:10px;margin-bottom:1.5rem}
+.search-input{flex:1;padding:11px 16px;border:1.5px solid var(--gris);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--texto);outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--oro);box-shadow:0 0 0 3px rgba(201,168,76,.1)}
+.btn-buscar{padding:11px 20px;background:var(--azul);color:white;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-buscar:hover{background:var(--azul2)}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.5rem}
+.stat-card{background:white;border:1px solid var(--gris);border-radius:var(--r);padding:1rem 1.25rem}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--azul)}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* TABLA */
+.tabla-wrap{background:white;border:1px solid var(--gris);border-radius:var(--r);overflow:hidden}
+.tabla-head{display:grid;grid-template-columns:3fr 2fr 1fr 1.5fr 1.5fr 80px;gap:0;background:var(--azul);padding:10px 16px}
+.th{font-size:11px;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:.06em;text-transform:uppercase}
+.fila{display:grid;grid-template-columns:3fr 2fr 1fr 1.5fr 1.5fr 80px;gap:0;padding:14px 16px;border-bottom:1px solid var(--gris);align-items:center;transition:background .15s}
+.fila:last-child{border-bottom:none}
+.fila:hover{background:var(--crema)}
+.fila-titular{font-size:14px;font-weight:500;color:var(--azul);line-height:1.2}
+.fila-domicilio{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fila-fecha{font-size:12px;color:var(--muted)}
+.fila-tipo{font-size:11px;background:rgba(13,27,42,.07);color:var(--azul);padding:3px 8px;border-radius:6px;display:inline-block}
+.fila-valor{font-size:14px;font-weight:600;color:var(--azul);font-family:'Cormorant Garamond',serif}
+.fila-precio{font-size:11px;color:var(--muted);margin-top:1px}
+.acciones{display:flex;gap:6px;justify-content:flex-end}
+.btn-pdf{width:32px;height:32px;border-radius:6px;border:1px solid var(--gris);background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;text-decoration:none}
+.btn-pdf:hover{border-color:var(--oro);background:rgba(201,168,76,.06)}
+.btn-del{width:32px;height:32px;border-radius:6px;border:1px solid rgba(192,57,43,.2);background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.btn-del:hover{border-color:var(--error);background:rgba(192,57,43,.05)}
+
+/* ESTADO */
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--muted)}
+.empty-icon{font-size:48px;margin-bottom:1rem;opacity:.4}
+.empty-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--azul);margin-bottom:8px}
+.loading-row{text-align:center;padding:3rem;color:var(--muted);font-size:14px}
+
+/* MODAL CONFIRMACIÓN */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(13,27,42,.7);z-index:300;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:white;border-radius:16px;padding:2rem;max-width:380px;width:90%;text-align:center}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--azul);margin-bottom:8px}
+.modal-desc{font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.6}
+.modal-btns{display:flex;gap:10px;justify-content:center}
+.btn-confirm{padding:10px 24px;background:var(--error);color:white;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.btn-cancel{padding:10px 24px;background:white;color:var(--azul);border:1.5px solid var(--gris);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--azul);color:white;padding:12px 20px;border-radius:8px;font-size:13px;z-index:400;transform:translateY(80px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+@media(max-width:700px){
+  main{padding:1.5rem 1rem}
+  header{padding:0 1rem}
+  .stats-row{grid-template-columns:1fr}
+  .tabla-head{display:none}
+  .fila{grid-template-columns:1fr auto;gap:8px}
+  .fila-fecha,.fila-tipo{display:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">GR</div>
+    <div>
+      <div class="logo-name">Grupo Rodi Inmobiliaria</div>
+      <div class="logo-sub">Soluciones Inteligentes para el Mercado</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="header-badge">Historial · Mat. 7524</div>
+    <a href="/" class="btn-nueva-tasa">+ Nueva tasación</a>
+  </div>
+</header>
+
+<main>
+  <h1 class="page-title">Historial de tasaciones</h1>
+  <p class="page-desc">Todas las tasaciones generadas. Podés descargar el PDF o eliminar registros.</p>
+
+  <div class="search-bar">
+    <input class="search-input" id="searchInput" type="text"
+           placeholder="Buscar por titular o dirección..."
+           onkeydown="if(event.key==='Enter') buscar()">
+    <button class="btn-buscar" onclick="buscar()">Buscar</button>
+    <button class="btn-buscar" style="background:var(--muted)" onclick="limpiar()">Ver todas</button>
+  </div>
+
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card"><div class="stat-num" id="sTot">–</div><div class="stat-lbl">Tasaciones totales</div></div>
+    <div class="stat-card"><div class="stat-num" id="sUlt">–</div><div class="stat-lbl">Última tasación</div></div>
+    <div class="stat-card"><div class="stat-num" id="sProm">–</div><div class="stat-lbl">Valor promedio adoptado</div></div>
+  </div>
+
+  <div class="tabla-wrap">
+    <div class="tabla-head">
+      <div class="th">Titular / Domicilio</div>
+      <div class="th">Fecha</div>
+      <div class="th">Tipo</div>
+      <div class="th">Valor adoptado</div>
+      <div class="th">Precio publicación</div>
+      <div class="th"></div>
+    </div>
+    <div id="tablaBody"><div class="loading-row">Cargando...</div></div>
+  </div>
+</main>
+
+<!-- MODAL ELIMINAR -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title">Eliminar tasación</div>
+    <div class="modal-desc" id="modalDesc">¿Seguro que querés eliminar esta tasación? Esta acción no se puede deshacer.</div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmarEliminar()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let idAEliminar = null;
+
+function fmt(n) {
+  if (!n && n !== 0) return '–';
+  return 'USD ' + Math.round(n).toLocaleString('es-AR');
+}
+
+function mostrarToast(msg, ok=true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = ok ? '#0D1B2A' : '#C0392B';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function cargar(q='') {
+  const body = document.getElementById('tablaBody');
+  body.innerHTML = '<div class="loading-row">Cargando...</div>';
+  try {
+    const url = q ? `/api/historial?q=${encodeURIComponent(q)}` : '/api/historial';
+    const resp = await fetch(url);
+    const data = await resp.json();
+
+    if (!data.ok || !data.tasaciones.length) {
+      body.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-title">${q ? 'Sin resultados' : 'Sin tasaciones aún'}</div>
+          <p>${q ? 'Probá con otro nombre o dirección.' : 'Las tasaciones que generes aparecerán acá automáticamente.'}</p>
+        </div>`;
+      document.getElementById('sTot').textContent = '0';
+      document.getElementById('sUlt').textContent = '–';
+      document.getElementById('sProm').textContent = '–';
+      return;
+    }
+
+    const tas = data.tasaciones;
+    // Stats
+    document.getElementById('sTot').textContent = tas.length;
+    document.getElementById('sUlt').textContent = tas[0].fecha.split(' ')[0].split('-').reverse().join('/');
+    const prom = tas.reduce((a,t) => a + (t.valor_adoptado_usd||0), 0) / tas.length;
+    document.getElementById('sProm').textContent = fmt(prom);
+
+    body.innerHTML = tas.map(t => `
+      <div class="fila" id="fila-${t.id}">
+        <div>
+          <div class="fila-titular">${t.titular||'–'}</div>
+          <div class="fila-domicilio">${t.domicilio||'–'}</div>
+        </div>
+        <div class="fila-fecha">${t.fecha||'–'}</div>
+        <div><span class="fila-tipo">${(t.tipo_bien||'').split(' ')[0]||'–'}</span></div>
+        <div>
+          <div class="fila-valor">${fmt(t.valor_adoptado_usd)}</div>
+          <div class="fila-precio">TC Blue $${Math.round(t.tc_blue||0).toLocaleString('es-AR')}</div>
+        </div>
+        <div>
+          <div class="fila-valor" style="font-size:13px">${fmt(t.precio_min_usd)} – ${fmt(t.precio_max_usd)}</div>
+          <div class="fila-precio">precio publicación</div>
+        </div>
+        <div class="acciones">
+          <button class="btn-pdf" title="Regenerar PDF" onclick="regenerarPDF(${t.id})">⬇</button>
+          <button class="btn-del" title="Eliminar" onclick="pedirEliminar(${t.id}, '${(t.titular||'').replace(/'/g,"\\'")}')">🗑</button>
+        </div>
+      </div>
+    `).join('');
+
+  } catch(e) {
+    body.innerHTML = '<div class="loading-row" style="color:#C0392B">Error al cargar el historial.</div>';
+  }
+}
+
+async function regenerarPDF(id) {
+  const btn = document.querySelector(`#fila-${id} .btn-pdf`);
+  if (btn) { btn.textContent = '⏳'; btn.style.pointerEvents = 'none'; }
+  try {
+    const resp = await fetch(`/api/historial/${id}`);
+    const data = await resp.json();
+    if (!data.ok) throw new Error('No encontrado');
+
+    const pdfResp = await fetch('/generar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(data.datos)
+    });
+    const blob = await pdfResp.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `Tasacion_${(data.datos.titular||'informe').replace(/\s+/g,'_')}.pdf`;
+    a.click();
+    mostrarToast('PDF descargado correctamente');
+  } catch(e) {
+    mostrarToast('Error al regenerar el PDF', false);
+  } finally {
+    if (btn) { btn.textContent = '⬇'; btn.style.pointerEvents = ''; }
+  }
+}
+
+function pedirEliminar(id, titular) {
+  idAEliminar = id;
+  document.getElementById('modalDesc').textContent =
+    `¿Seguro que querés eliminar la tasación de "${titular}"? Esta acción no se puede deshacer.`;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function cerrarModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  idAEliminar = null;
+}
+
+async function confirmarEliminar() {
+  if (!idAEliminar) return;
+  cerrarModal();
+  try {
+    const resp = await fetch(`/api/historial/${idAEliminar}`, {method:'DELETE'});
+    const data = await resp.json();
+    if (data.ok) {
+      const fila = document.getElementById(`fila-${idAEliminar}`);
+      if (fila) { fila.style.opacity='0'; fila.style.transition='opacity .3s'; setTimeout(()=>fila.remove(),300); }
+      mostrarToast('Tasación eliminada');
+      setTimeout(cargar, 500);
+    }
+  } catch(e) {
+    mostrarToast('Error al eliminar', false);
+  }
+}
+
+function buscar() {
+  const q = document.getElementById('searchInput').value.trim();
+  cargar(q);
+}
+
+function limpiar() {
+  document.getElementById('searchInput').value = '';
+  cargar();
+}
+
+// Cerrar modal con ESC
+document.addEventListener('keydown', e => { if (e.key==='Escape') cerrarModal(); });
+
+cargar();
+</script>
+</body>
+</html>
