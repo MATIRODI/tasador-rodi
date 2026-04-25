@@ -1,5 +1,5 @@
 from flask import Flask, request, send_file, jsonify
-import io, math, datetime, requests, json, time, re
+import io, math, datetime, requests, json, time, re, sqlite3, os
 from bs4 import BeautifulSoup
 import anthropic
 from reportlab.lib.pagesizes import A4
@@ -11,6 +11,63 @@ from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table,
 from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
 
 app = Flask(__name__, static_folder='.', static_url_path='')
+
+# ══════════════════════════════════════════════════════════════
+# BASE DE DATOS — SQLite historial de tasaciones
+# ══════════════════════════════════════════════════════════════
+DB_PATH = os.environ.get('DB_PATH', '/tmp/tasaciones.db')
+
+def init_db():
+    con = sqlite3.connect(DB_PATH)
+    con.execute('''
+        CREATE TABLE IF NOT EXISTS tasaciones (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            fecha     TEXT NOT NULL,
+            titular   TEXT NOT NULL,
+            domicilio TEXT NOT NULL,
+            tipo_bien TEXT,
+            superficie REAL,
+            zona      TEXT,
+            valor_adoptado_usd REAL,
+            precio_min_usd     REAL,
+            precio_max_usd     REAL,
+            tc_oficial REAL,
+            tc_blue    REAL,
+            datos_json TEXT
+        )
+    ''')
+    con.commit()
+    con.close()
+
+def guardar_tasacion(datos, valor_adoptado, precio_min, precio_max, tc_of, tc_bl):
+    try:
+        con = sqlite3.connect(DB_PATH)
+        con.execute('''
+            INSERT INTO tasaciones
+            (fecha, titular, domicilio, tipo_bien, superficie, zona,
+             valor_adoptado_usd, precio_min_usd, precio_max_usd,
+             tc_oficial, tc_blue, datos_json)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+        ''', (
+            datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
+            datos.get('titular', ''),
+            datos.get('domicilio', ''),
+            datos.get('tipoBien', ''),
+            datos.get('superficie', 0),
+            datos.get('zona', ''),
+            valor_adoptado,
+            precio_min,
+            precio_max,
+            tc_of,
+            tc_bl,
+            json.dumps(datos, ensure_ascii=False),
+        ))
+        con.commit()
+        con.close()
+    except Exception as e:
+        print(f'Error guardando tasación: {e}')
+
+init_db()
 
 # ── COLORES ────────────────────────────────────────────────────
 AZUL       = colors.HexColor('#0D1B2A')
@@ -835,12 +892,94 @@ def generar():
         pdf_buf  = generar_pdf(datos)
         titular  = datos.get('titular', 'tasacion').replace(' ', '_')
         filename = f"Tasacion_{titular}.pdf"
+
+        # ── Guardar en historial ──────────────────────────────
+        try:
+            sup        = float(datos.get('superficie', 0))
+            val_m2     = float(datos.get('valorM2', 0))
+            val_tierra = float(datos.get('valTierra', 0))
+            zona       = datos.get('zona', 'deprimida')
+            factor     = FACTORES_MERCADO.get(zona, 1.09)
+            descuento  = float(datos.get('descuento', 15))
+            tc_of_h    = float(datos.get('tcOficial', 0) or 0)
+            tc_bl_h    = float(datos.get('tcBlue', 0) or 0)
+            if not (tc_of_h > 100 and tc_bl_h > 100):
+                tc_auto = obtener_tipos_cambio()
+                tc_of_h = tc_auto['oficial']
+                tc_bl_h = tc_auto['blue']
+            m1 = sup * val_m2
+            val_cat_usd = val_tierra / tc_bl_h if tc_bl_h > 0 and val_tierra > 0 else 0
+            m2 = val_cat_usd * factor if val_cat_usd > 0 else m1
+            valor_adoptado = round((m1 + m2) / 2) if val_cat_usd > 0 else round(m1)
+            precio_min = round(valor_adoptado * (1 - (descuento + 5) / 100))
+            precio_max = round(valor_adoptado * (1 - descuento / 100))
+            guardar_tasacion(datos, valor_adoptado, precio_min, precio_max, tc_of_h, tc_bl_h)
+        except Exception as eg:
+            print(f'Error calculando para historial: {eg}')
+
         return send_file(pdf_buf, mimetype='application/pdf',
                         as_attachment=True, download_name=filename)
     except Exception as e:
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/historial', methods=['GET'])
+def api_historial():
+    """Lista todas las tasaciones guardadas, más recientes primero."""
+    try:
+        busqueda = request.args.get('q', '').strip().lower()
+        con = sqlite3.connect(DB_PATH)
+        con.row_factory = sqlite3.Row
+        if busqueda:
+            rows = con.execute('''
+                SELECT id, fecha, titular, domicilio, tipo_bien, superficie, zona,
+                       valor_adoptado_usd, precio_min_usd, precio_max_usd, tc_oficial, tc_blue
+                FROM tasaciones
+                WHERE LOWER(titular) LIKE ? OR LOWER(domicilio) LIKE ?
+                ORDER BY id DESC LIMIT 100
+            ''', (f'%{busqueda}%', f'%{busqueda}%')).fetchall()
+        else:
+            rows = con.execute('''
+                SELECT id, fecha, titular, domicilio, tipo_bien, superficie, zona,
+                       valor_adoptado_usd, precio_min_usd, precio_max_usd, tc_oficial, tc_blue
+                FROM tasaciones ORDER BY id DESC LIMIT 100
+            ''').fetchall()
+        con.close()
+        return jsonify({'ok': True, 'tasaciones': [dict(r) for r in rows]})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+@app.route('/api/historial/<int:tid>', methods=['GET'])
+def api_historial_detalle(tid):
+    """Devuelve los datos completos de una tasación para regenerar el PDF."""
+    try:
+        con = sqlite3.connect(DB_PATH)
+        con.row_factory = sqlite3.Row
+        row = con.execute('SELECT datos_json FROM tasaciones WHERE id=?', (tid,)).fetchone()
+        con.close()
+        if not row:
+            return jsonify({'ok': False, 'error': 'No encontrado'}), 404
+        datos = json.loads(row['datos_json'])
+        return jsonify({'ok': True, 'datos': datos})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+@app.route('/api/historial/<int:tid>', methods=['DELETE'])
+def api_historial_eliminar(tid):
+    """Elimina una tasación del historial."""
+    try:
+        con = sqlite3.connect(DB_PATH)
+        con.execute('DELETE FROM tasaciones WHERE id=?', (tid,))
+        con.commit()
+        con.close()
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+@app.route('/historial')
+def historial_page():
+    return app.send_static_file('historial.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
