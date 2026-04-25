@@ -756,6 +756,24 @@ function simulateLoading(callback) {
 
 function generarTasacion(e) {
   e.preventDefault();
+
+  // ── Scroll automático al primer campo inválido ────────
+  const camposRequeridos = document.querySelectorAll('#tasadorForm [required]');
+  for (const campo of camposRequeridos) {
+    if (!campo.value.trim()) {
+      campo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => {
+        campo.focus();
+        campo.style.borderColor = 'var(--error)';
+        campo.style.boxShadow   = '0 0 0 3px rgba(192,57,43,.12)';
+        setTimeout(() => {
+          campo.style.borderColor = '';
+          campo.style.boxShadow   = '';
+        }, 2500);
+      }, 400);
+      return;
+    }
+  }
   const datos = {
     nroCuenta:    document.getElementById('nroCuenta').value,
     nomenclatura: document.getElementById('nomenclatura').value,
